@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UITableViewController {
     var allWords = [String]()
     var usedWords = [String]()
+    let defaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +28,14 @@ class ViewController: UITableViewController {
             allWords = ["silkworm"]
         }
         
-        startGame()
+        title = defaults.object(forKey: "word") as? String ?? ""
+        usedWords = defaults.object(forKey: "used") as? [String] ?? [String]()
+        
+        if title!.isEmpty {
+            startGame()
+        } else {
+            tableView.reloadData()
+        }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -85,6 +93,7 @@ class ViewController: UITableViewController {
             if isOriginal(word: lowerAnswer) {
                 if isReal(word: lowerAnswer) {
                     usedWords.insert(lowerAnswer, at: 0)
+                    defaults.set(usedWords, forKey: "used")
                     
                     let indexPath = IndexPath(row: 0, section: 0)
                     tableView.insertRows(at: [indexPath], with: .automatic)
@@ -111,6 +120,8 @@ class ViewController: UITableViewController {
     @objc func startGame() {
         title = allWords.randomElement()
         usedWords.removeAll(keepingCapacity: true)
+        defaults.set(title, forKey: "word")
+        defaults.set(usedWords, forKey: "used")
         tableView.reloadData()
     }
 
